@@ -1,7 +1,7 @@
 ﻿
 @model List<Shop.Models.BuyItem>
 @{
-    ViewData["Title"] = "AddList";
+    ViewData["Title"] = "BuyItemList";
 }
 <style>
     .item{
@@ -10,9 +10,11 @@
     }
 
 </style>
+<h1>購買清單</h1>
 <div>
     <div class="row ">
             <div class="col d-none">IDNo</div>
+            <div class="col d-none">Items_IDNo</div>
             <div class="col">操作</div>
             <div class="col">商品名稱</div>
             <div class="col">圖片</div>
@@ -22,7 +24,7 @@
     @foreach (var item in Model)
     {
         <div class="row item">
-            <div class="col d-none IDNo">@item.IDNo</div>
+            <div class="col d-none Items_IDNo">@item.Items_IDNo</div>
             <div class="col">
                 <button type="button" value="取消" class="btn btn-danger" onclick="cancel(@item.IDNo);">取消</button>
             </div>
@@ -47,7 +49,6 @@ $(document).ready(function() {
         var totalPrice = 0;
 
         $(".item").each(function() {
-            debugger;
             var price = parseFloat($(this).find(".price").text());
             var buyCount = parseInt($(this).find(".buyCount").val());
 
@@ -91,40 +92,38 @@ async function cancel(idNo){
 }
 
 async function 結帳() {
-    結帳前更新數量();
-    window.location.href = `${window.websettings.host}/Home/Buy`;
+    var result = await 結帳前更新數量();
+    if(result){
+        window.location.href = `${window.websettings.host}/Home/ReadyPay`;
+    }
 }
 async function 結帳前更新數量(){
     let datas = [];
     $(".item").each(function(index, item) {
-        const IDNo = parseInt($(item).find(".IDNo").text());
+
         const buyCount = parseInt($(item).find(".buyCount").val());
+        const Items_IDNo = parseInt($(item).find(".Items_IDNo").text());
         datas.push({
-            IDNo:IDNo,
-            buyCount :buyCount
+            Items_IDNo:Items_IDNo,
+            buyCount :buyCount,
         });
     });
-    for (let i = 0; i < datas.length; i++) {
-        const para = datas[i];
-        const url = `${window.websettings.host}/Home/UpdateBuyItem`;
-        
-        const response = await axios.post(url, para);
-        const result = response.data;
+    debugger;
+    const para = datas;
+    const url = `${window.websettings.host}/Home/UpdateBuyItemssss`;
+    const response = await axios.post(url, para);
+    const result = response.data;
     
-         if (result.success) {
-            console.log("Operation successful:", result.message);
-            //alert(`成功 add id ${id} buyCount ${buyCount}`);
-
-            //$("#exampleModal").modal('show');
-
-        } else {
-            // Operation failed
-            console.error("Operation failed:", result.message);
-            //alert(`失敗 add id ${id} buyCount ${buyCount}`);
-        }
+    if (result.success) {
+        console.log("Operation successful:", result.message);
+        return true;
+    } else {
+        // Operation failed
+        console.error("Operation failed:", result.message);
+        alert(result.message)
+        return false;
     }
 }
-
 
 </script>
 }

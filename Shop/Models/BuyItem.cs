@@ -10,5 +10,6 @@
         public decimal Price { get; set; }
         public int BuyCount { get; set; }
         public string src { get; set; }
+        public int Items_IDNo { get; set; }
     }
 }

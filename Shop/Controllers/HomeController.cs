@@ -92,24 +92,24 @@ namespace Shop.Controllers
                     return Ok(new { success = false, message = 檢查購買資訊結果 });
                 }
                 var sql = @" 
-                MERGE [dbo].[BuyItems] AS tgt
-                USING (SELECT @BuyCount as BuyCount, @Items_IDNo as Items_IDNo, @UserId as UserId) AS src
-                    ON (tgt.Items_IDNo = src.Items_IDNo and tgt.UserID = src.UserId)
-                WHEN MATCHED
-                    THEN
-                        UPDATE
-                        SET tgt.buyCount = src.buyCount
+                    MERGE [dbo].[BuyItems] AS tgt
+                    USING (SELECT @BuyCount as BuyCount, @Items_IDNo as Items_IDNo, @UserId as UserId) AS src
+                        ON (tgt.Items_IDNo = src.Items_IDNo and tgt.UserID = src.UserId)
+                    WHEN MATCHED
+                        THEN
+                            UPDATE
+                            SET tgt.buyCount = src.buyCount
 				
-                WHEN NOT MATCHED BY Target 
-                    THEN
-                        INSERT (buyCount, Items_IDNo, UserId)
-                        VALUES (src.buyCount, src.Items_IDNo, src.UserId);
+                    WHEN NOT MATCHED BY Target 
+                        THEN
+                            INSERT (buyCount, Items_IDNo, UserId)
+                            VALUES (src.buyCount, src.Items_IDNo, src.UserId);
                 ";
                 var UserId = userInfoHelper.GetUserId();
                 var paramAct = new
                 {
                     BuyCount = buyInfo.buyCount,
-                    Items_IDNo = buyInfo.IDNo,
+                    Items_IDNo = buyInfo.Items_IDNo,
                     UserId = UserId
                 };
                 var result = dbHelper.ConnDb<int>(conn => conn.Execute(sql, paramAct));
@@ -131,9 +131,63 @@ namespace Shop.Controllers
             }
         }
         [HttpPost]
-        public IActionResult UpdateBuyItems([FromBody] List<BuyInfo> buyInfo)
+        public IActionResult UpdateBuyItemssss([FromBody] List<BuyInfo> buyInfosss)
         {
-            return Ok(new { success = true, message = "Item updated successfully" });
+            try
+            {
+                var 檢查購買資訊是否有誤 = buyInfosss.Select(檢查購買資訊是否正確)
+                                                .Where(x => !string.IsNullOrWhiteSpace(x))
+                                                .ToList();
+                if (檢查購買資訊是否有誤.Count > 0)
+                {
+                    var joinMessage = string.Join(@"\n", 檢查購買資訊是否有誤);
+
+                    return Ok(new { success = false, message = joinMessage });
+                }
+                var sql = @" 
+                    MERGE [dbo].[BuyItems] AS tgt
+                    USING (SELECT @BuyCount as BuyCount, @Items_IDNo as Items_IDNo, @UserId as UserId) AS src
+                        ON (tgt.Items_IDNo = src.Items_IDNo and tgt.UserID = src.UserId)
+                    WHEN MATCHED
+                        THEN
+                            UPDATE
+                            SET tgt.buyCount = src.buyCount
+				
+                    WHEN NOT MATCHED BY Target 
+                        THEN
+                            INSERT (buyCount, Items_IDNo, UserId)
+                            VALUES (src.buyCount, src.Items_IDNo, src.UserId);
+                ";
+                //var paramAct = new
+                //{
+                //    BuyCount = buyInfosss.buyCount,
+                //    Items_IDNo = buyInfosss.IDNo,
+                //    UserId = UserId
+                //};
+                var UserId = userInfoHelper.GetUserId();
+                var paramAct = buyInfosss.Select(buyInfo => new
+                {
+                    BuyCount = buyInfo.buyCount,
+                    Items_IDNo = buyInfo.Items_IDNo,
+                    UserId = UserId
+                });
+                var result = dbHelper.ConnDb<int>(conn => conn.Execute(sql, paramAct));
+                if (result == buyInfosss.Count)
+                {
+                    // Return success message
+                    return Ok(new { success = true, message = "Item updated successfully" });
+                }
+                else
+                {
+                    // Return error message
+                    return BadRequest(new { success = false, message = "Failed to update item" });
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "測試");
+                return BadRequest(new { success = false, message = "exception " + ex.Message });
+            }
         }
         [HttpPost]
         public IActionResult DeleteBuyItem([FromBody] BuyInfoDelete buyInfoDelete)
@@ -171,6 +225,31 @@ namespace Shop.Controllers
             var request = httpContextAccessor.HttpContext.Request;
             var baseUrl = $"{request.Scheme}://{request.Host}";
             var sql = @"
+            SELECT 
+                    BuyItems.IDNo
+                  ,[BuyItems].[BuyCount]
+                  ,[BuyItems].[Items_IDNo]
+	              ,[Items].Name
+	              ,[Items].price
+                  ,@baseUrl + '/' + [Items].src as src
+            FROM 
+                [BuyItems]
+            left join [dbo].[Items] on [Items].IDNo = [BuyItems].[Items_IDNo]
+            where 1 = 1
+	            and [BuyItems].UserId = @UserId
+            ";
+            var UserId = userInfoHelper.GetUserId();
+            var list = dbHelper.ConnDb(conn =>
+                 conn.Query<BuyItem>(sql, new { UserId, baseUrl })
+            );
+
+            return View(list);
+        }
+        public IActionResult ReadyPay()
+        {
+            var request = httpContextAccessor.HttpContext.Request;
+            var baseUrl = $"{request.Scheme}://{request.Host}";
+            var sql = @"
             SELECT [BuyItems].[IDNo]
                   ,[BuyItems].[BuyCount]
                   ,[BuyItems].[Items_IDNo]
@@ -190,14 +269,10 @@ namespace Shop.Controllers
 
             return View(list);
         }
-        public IActionResult Buy()
-        {
-            return View();
-        }
         private string 檢查購買資訊是否正確(BuyInfo buyInfo)
         {
             var sql確認物品存在 = @"select 1 from Items where IDNo = @IDNo;";
-            var param確認物品存在 = new { buyInfo.IDNo };
+            var param確認物品存在 = new { IDNo = buyInfo.Items_IDNo };
             var 確認物品存在 = dbHelper.ConnDb(conn =>
                 conn.ExecuteScalar<string>(sql確認物品存在, param確認物品存在)) == "1";
             if (!確認物品存在)
@@ -208,7 +283,7 @@ namespace Shop.Controllers
             var param確認物品庫存量足夠 = new
             {
                 BuyCount = buyInfo.buyCount,
-                buyInfo.IDNo
+                IDNo = buyInfo.Items_IDNo
             };
             var 確認物品庫存量足夠 = dbHelper.ConnDb(conn => conn.ExecuteScalar<string>(sql確認物品庫存量足夠, param確認物品庫存量足夠)) == "1";
             if (!確認物品庫存量足夠)
@@ -217,10 +292,34 @@ namespace Shop.Controllers
             }
             return "";
         }
+        [HttpPost]
+        public IActionResult usp_ReadyPay()
+        {
+            try
+            {
+                var storedProcedureName = "usp_ReadyPay";
+                var UserId = userInfoHelper.GetUserId();
+                var values = new { UserId };
+
+                var 預存執行是否有誤 = dbHelper.ConnDb(conn => conn.QueryFirst<string>(storedProcedureName, values, commandType: CommandType.StoredProcedure));
+                if (!string.IsNullOrWhiteSpace(預存執行是否有誤))
+                {
+                    return Ok(new { success = false, message = 預存執行是否有誤 });
+                }
+
+                return Ok(new { success = true, message = "" });
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "測試");
+                return BadRequest(new { success = false, message = "exception " + ex.Message });
+            }
+        }
     }
     public class BuyInfo
     {
-        public int IDNo { get; set; }
+        public int Items_IDNo { get; set; }
         public int buyCount { get; set; }
     }
     public class BuyInfoDelete

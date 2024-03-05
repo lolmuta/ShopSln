@@ -1,0 +1,86 @@
+﻿@model List<Shop.Models.BuyItem>
+@{
+    ViewData["Title"] = "ReadyPay";
+}
+<style>
+    .item{
+        margin:10px;
+        border: 1px solid #ccc;
+    }
+
+</style>
+<h1>結帳頁面</h1>
+<div>
+    <div class="row ">
+            <div class="col d-none">IDNo</div>
+            <div class="col">操作</div>
+            <div class="col">商品名稱</div>
+            <div class="col">圖片</div>
+            <div class="col price">單價</div>
+            <div class="col buyCount">購買數量</div>
+    </div>
+    @foreach (var item in Model)
+    {
+        <div class="row item">
+            <div class="col d-none IDNo">@item.IDNo</div>
+            <div class="col">
+                <button type="button" value="取消" class="btn btn-danger" onclick="cancel(@item.IDNo);">取消</button>
+            </div>
+            <div class="col">@item.Name</div>
+            <div class="col">
+                <img src="@item.src" />
+            </div>
+            <div class="col price">@item.Price</div>
+            <input type="number" class="col buyCount" value="@item.BuyCount" disabled />
+        </div>
+    }
+    總額
+    <div id="totalPrice"></div>
+    <button type="button" id="btnPaid" onclick="付款();">付款</button>
+</div>
+
+
+@section scripts {
+<script>
+    $(document).ready(function() {
+    // 计算总额
+    function calculateTotalPrice() {
+        var totalPrice = 0;
+
+        $(".item").each(function() {
+            var price = parseFloat($(this).find(".price").text());
+            var buyCount = parseInt($(this).find(".buyCount").val());
+
+            totalPrice += price * buyCount;
+        });
+        $("#totalPrice").text("Total Price: " + totalPrice.toFixed(2));
+    }
+
+    // 初次加载时计算一次
+    calculateTotalPrice();
+   
+});
+
+async function 付款(){
+    var result = await usp_ReadyPay();
+    if(result){
+        alert("付款成功，待出貨");
+    }
+}
+async function usp_ReadyPay(){
+    const url = `${window.websettings.host}/Home/usp_ReadyPay`;
+    const response = await axios.post(url, []);
+    const result = response.data;
+    if (result.success) {
+        console.log("Operation successful:", result.message);
+        return true;
+    } else {
+        // Operation failed
+        console.error("Operation failed:", result.message);
+        alert(result.message)
+        return false;
+    }
+}
+</script>
+
+}

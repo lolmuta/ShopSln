@@ -50,7 +50,7 @@ async function btnAddClick() {
     try {
         const url = `${window.websettings.host}/Home/UpdateBuyItem`;
         const para = {
-            IDNo: id,
+            Items_IDNo: id,
             buyCount: buyCount
         }
         const response = await axios.post(url, para);
