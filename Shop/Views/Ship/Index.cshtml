@@ -1,0 +1,58 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+    ViewData["Title"] = "index";
+}
+@model List<Shop.Models.ShipsInfo>
+
+<h1>待出貨清單</h1>
+
+<div id="item-list">
+    <div class="row ">
+            <div class="col d-none">IDNo</div>
+            <div class="col d-none">uuid</div>
+            <div class="col d-none">UserId</div>
+            <div class="col">取消</div>
+            <div class="col">詳細資料</div>
+            <div class="col">狀態</div>
+            <div class="col">購物日期</div>
+            <div class="col">出貨日期</div>
+            <div class="col">收貨日期</div>
+    </div>
+    @foreach (var item in Model)
+    {
+        <div class="row item">
+            <div class="col d-none IDNo">@item.IDNo</div>
+            <div class="col d-none Items_IDNo">@item.uuid</div>
+            <div class="col d-none UserId">@item.UserId</div>
+            <div class="col">
+                <button type="button" value="取消" class="btn btn-danger" onclick="cancel(@item.IDNo);">取消</button>
+            </div>
+             <div class="col">
+                <button type="button" value="詳細資料" class="btn btn-default" onclick="detail(@item.IDNo);">詳細資料</button>
+            </div>
+            <div class="col status">@item.Status</div>
+            <div class="col PaidDatetime">@item.PaidDatetime</div>
+            <div class="col PaidDatetime">@item.ShipDatetime</div>
+            <div class="col PaidDatetime">@item.ReceivedDatetime</div>
+        </div>
+    }
+
+</div>
+
+
+
+@section scripts {
+<script>
+function detail(IDno){
+
+}
+function showLoading() {
+    fn_showLoading("#loading", "#item-list");
+}
+function hideLoading() {
+    fn_hideLoading("#loading", "#item-list");
+}
+</script>
+}

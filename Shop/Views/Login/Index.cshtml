@@ -1,0 +1,61 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Shop</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Shop.styles.css" asp-append-version="true" />
+</head>
+<body>    
+    <div class="container">
+        <h1>登入頁面</h1>
+        帳號<input id="userId" type="text">
+        密碼<input id="password" type="password">
+        <input type="button" text="登入" onclick="登入();">
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/lib/axios.min.js"></script>
+    <script>
+    // 确保在访问 window.websettings.host 之前设置它
+    window.websettings = window.websettings || {}; // 确保对象已经存在
+    window.websettings.host = '@(Context.Request.Scheme)://@(Context.Request.Host)';
+
+    function fn_showLoading(loadingElement, contentElement) {
+        $(loadingElement).removeClass('d-none');
+        $(contentElement).addClass('d-none');
+    }
+
+    // Function to hide loading indicator
+    function fn_hideLoading(loadingElement, contentElement) {
+        $(loadingElement).addClass('d-none');
+        $(contentElement).removeClass('d-none');
+    }
+
+    </script>
+    <script>
+        await function 登入(){
+            const url = `${window.websettings.host}/Login/DoLogin`;
+            const para = {
+                UserId: $("#userId").val(),
+                Password: $("#password").val(),
+            }
+            const response = await axios.post(url, para);
+            const result = response.data;
+    
+            if (result.success) {
+                console.log("Operation successful:", result.message);
+                alert(`登入成功 ${idNo}`);
+                location.reload(true);
+            } else {
+                // Operation failed
+                console.error("Operation failed:", result.message);
+                alert(`失敗 add id ${idNo}`);
+            }
+        }
+    </script>
+</body>
+</html>

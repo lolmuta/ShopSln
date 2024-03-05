@@ -1,6 +1,7 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Shop.Filter;
 using Shop.Models;
 using Shop.Utils;
 using System.Data;
@@ -8,7 +9,7 @@ using System.Diagnostics;
 
 namespace Shop.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly DbHelper dbHelper;
