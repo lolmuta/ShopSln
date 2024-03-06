@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -37,7 +41,7 @@
 
     </script>
     <script>
-        await function 登入(){
+        async function 登入(){
             const url = `${window.websettings.host}/Login/DoLogin`;
             const para = {
                 UserId: $("#userId").val(),
@@ -48,12 +52,13 @@
     
             if (result.success) {
                 console.log("Operation successful:", result.message);
-                alert(`登入成功 ${idNo}`);
-                location.reload(true);
+                alert(`登入成功`);
+                const urlHome = `${window.websettings.host}/Home/Index`;
+                window.location.href = urlHome;
             } else {
                 // Operation failed
                 console.error("Operation failed:", result.message);
-                alert(`失敗 add id ${idNo}`);
+                alert(`${result.message}`);
             }
         }
     </script>

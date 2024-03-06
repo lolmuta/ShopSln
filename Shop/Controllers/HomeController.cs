@@ -16,7 +16,8 @@ namespace Shop.Controllers
         private readonly UserInfoHelper userInfoHelper;
         private readonly IHttpContextAccessor httpContextAccessor;
 
-        public HomeController(ILogger<HomeController> logger
+        public HomeController(
+            ILogger<HomeController> logger
             , DbHelper dbHelper
             , UserInfoHelper userInfoHelper
             , IHttpContextAccessor _httpContextAccessor)
@@ -106,7 +107,7 @@ namespace Shop.Controllers
                             INSERT (buyCount, Items_IDNo, UserId)
                             VALUES (src.buyCount, src.Items_IDNo, src.UserId);
                 ";
-                var UserId = userInfoHelper.GetUserId();
+                var UserId = userInfoHelper.UserId;
                 var paramAct = new
                 {
                     BuyCount = buyInfo.buyCount,
@@ -165,7 +166,7 @@ namespace Shop.Controllers
                 //    Items_IDNo = buyInfosss.IDNo,
                 //    UserId = UserId
                 //};
-                var UserId = userInfoHelper.GetUserId();
+                var UserId = userInfoHelper.UserId;
                 var paramAct = buyInfosss.Select(buyInfo => new
                 {
                     BuyCount = buyInfo.buyCount,
@@ -198,7 +199,7 @@ namespace Shop.Controllers
                 var sql = @" 
                     delete [BuyItems] where IDNo=@idNo;
                 ";
-                var UserId = userInfoHelper.GetUserId();
+                var UserId = userInfoHelper.UserId;
                 var paramAct = new
                 {
                     idNo = buyInfoDelete.IDNo
@@ -239,7 +240,7 @@ namespace Shop.Controllers
             where 1 = 1
 	            and [BuyItems].UserId = @UserId
             ";
-            var UserId = userInfoHelper.GetUserId();
+            var UserId = userInfoHelper.UserId;
             var list = dbHelper.ConnDb(conn =>
                  conn.Query<BuyItem>(sql, new { UserId, baseUrl })
             );
@@ -263,12 +264,12 @@ namespace Shop.Controllers
             where 1 = 1
 	            and [BuyItems].UserId = @UserId
             ";
-            var UserId = userInfoHelper.GetUserId();
+            var UserId = userInfoHelper.UserId;
             var list = dbHelper.ConnDb(conn =>
                  conn.Query<BuyItem>(sql, new { UserId, baseUrl })
             );
 
-            return View(list);
+            return View(list);  
         }
         private string 檢查購買資訊是否正確(BuyInfo buyInfo)
         {
@@ -299,7 +300,7 @@ namespace Shop.Controllers
             try
             {
                 var storedProcedureName = "usp_ReadyPay";
-                var UserId = userInfoHelper.GetUserId();
+                var UserId = userInfoHelper.UserId;
                 var values = new { UserId };
 
                 var 預存執行是否有誤 = dbHelper.ConnDb(conn => conn.QueryFirst<string>(storedProcedureName, values, commandType: CommandType.StoredProcedure));

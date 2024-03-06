@@ -18,7 +18,7 @@ namespace Shop.Filter
             if (!userInfoHelper.IsLogin())
             {
                 // 用户未登录，执行相应的逻辑，比如重定向到登录页面
-                context.Result = new RedirectToActionResult("Login", "Index", null);
+                context.Result = new RedirectToActionResult("Index", "Login", null);
             }
         }
     }

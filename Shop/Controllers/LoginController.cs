@@ -1,5 +1,6 @@
 ﻿using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Shop.Models;
 using Shop.Utils;
 
 namespace Shop.Controllers
@@ -25,16 +26,25 @@ namespace Shop.Controllers
         {
             return View();
         }
-        [HttpGet]
+        [HttpPost]
         public IActionResult DoLogin([FromBody] UserIDPwd userIDPwd)
         {
             try
             {
-                var sql = @"select 1 from Users where UserId = @UserId";
-                var isValid = dbHelper.ConnDb(conn => conn.Query(sql, userIDPwd)).Count() > 0;
+                var sql = @"
+                    SELECT 
+                      [UserId]
+                      ,[UserName]
+                      ,[Addr] 
+                    from 
+                        Users 
+                    where UserId = @UserId";
+
+                var users = dbHelper.ConnDb(conn => conn.Query<User>(sql, userIDPwd));
+                var isValid = users.Count() > 0;    
                 if (isValid)
                 {
-                    userInfoHelper.SetUserId(userIDPwd.UserId);
+                    userInfoHelper.User = users.First();
                     return Ok(new { success = true, message = "登入成功" });
                 }
                 else
@@ -46,6 +56,20 @@ namespace Shop.Controllers
             {
                 _logger.LogError(ex, "測試");
                 return BadRequest(new { success = false, message = "exception " + ex.Message });
+            }
+        }
+        [HttpPost]
+        public IActionResult DoLogout()
+        {
+            try
+            {
+                userInfoHelper.logOut();
+                return View("Index");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "測試");
+                return View("Index");
             }
         }
     }

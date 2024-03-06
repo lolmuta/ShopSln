@@ -1,4 +1,7 @@
-﻿namespace Shop.Utils
+﻿using Microsoft.AspNetCore.Http;
+using Shop.Models;
+
+namespace Shop.Utils
 {
     public class UserInfoHelper
     {
@@ -8,22 +11,67 @@
         {
             _httpContextAccessor = httpContextAccessor;
         }
-        public string GetUserId()
+        public string UserId
         {
-            //var userId = _httpContextAccessor.HttpContext.Session.GetString("UserId");
-            //return userId;
-            return "1";
+            get
+            {
+                return _httpContextAccessor.HttpContext.Session.GetString("UserId");
+            }
+            private set
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("UserId", value);
+            }
         }
-        public void SetUserId(string UserId)
+        public string UserName
         {
-            _httpContextAccessor.HttpContext.Session.SetString("UserId", UserId);
+            get
+            {
+                return _httpContextAccessor.HttpContext.Session.GetString("UserName");
+            }
+            private set
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("UserName", value);
+            }
         }
-        public string UserName { get; set; }
+        public string Addr
+        {
+            get
+            {
+                return _httpContextAccessor.HttpContext.Session.GetString("Addr");
+            }
+            private set
+            {
+                _httpContextAccessor.HttpContext.Session.SetString("Addr", value);
+            }
+        }
+
+        public User User 
+        {
+            get
+            {
+                return new User()
+                {
+                    UserId = UserId,
+                    UserName = UserName,
+                    Addr = Addr
+                };
+            }
+            set
+            {
+                UserId = value.UserId; 
+                UserName =value.UserName; 
+                Addr = value.Addr;
+            }
+        }
+
         public bool IsLogin()
         {
-            //todo session 要能用
-            return true;
-            //return !string.IsNullOrWhiteSpace(GetUserId());
+            return !string.IsNullOrWhiteSpace(UserId);
+        }
+
+        internal void logOut()
+        {
+            _httpContextAccessor.HttpContext.Session.Clear();
         }
     }
 }

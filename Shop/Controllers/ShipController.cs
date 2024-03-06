@@ -13,7 +13,8 @@ namespace Shop.Controllers
         private readonly DbHelper dbHelper;
         private readonly UserInfoHelper userInfoHelper;
         private readonly IHttpContextAccessor httpContextAccessor;
-        public ShipController(ILogger<HomeController> logger
+        public ShipController(
+            ILogger<HomeController> logger
             , DbHelper dbHelper
             , UserInfoHelper userInfoHelper
             , IHttpContextAccessor _httpContextAccessor)
