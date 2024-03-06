@@ -4,11 +4,6 @@
     ViewData["Title"] = "BuyItemList";
 }
 <style>
-    .item{
-        margin:10px;
-        border: 1px solid #ccc;
-    }
-
 </style>
 <h1>購買清單</h1>
 <div>
@@ -29,8 +24,8 @@
                 <button type="button" value="取消" class="btn btn-danger" onclick="cancel(@item.IDNo);">取消</button>
             </div>
             <div class="col">@item.Name</div>
-            <div class="col">
-                <img src="@item.src" />
+            <div class="col geeks">
+                <img class="geeks-img" src="@item.src" />
             </div>
             <div class="col price">@item.Price</div>
             <input type="number" class="col buyCount" value="@item.BuyCount" />

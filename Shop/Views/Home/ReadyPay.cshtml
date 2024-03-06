@@ -13,7 +13,6 @@
 <div>
     <div class="row ">
             <div class="col d-none">IDNo</div>
-            <div class="col">操作</div>
             <div class="col">商品名稱</div>
             <div class="col">圖片</div>
             <div class="col price">單價</div>
@@ -23,12 +22,9 @@
     {
         <div class="row item">
             <div class="col d-none IDNo">@item.IDNo</div>
-            <div class="col">
-                <button type="button" value="取消" class="btn btn-danger" onclick="cancel(@item.IDNo);">取消</button>
-            </div>
             <div class="col">@item.Name</div>
-            <div class="col">
-                <img src="@item.src" />
+            <div class="col geeks">
+                <img class="geeks-img" src="@item.src" />
             </div>
             <div class="col price">@item.Price</div>
             <input type="number" class="col buyCount" value="@item.BuyCount" disabled />
