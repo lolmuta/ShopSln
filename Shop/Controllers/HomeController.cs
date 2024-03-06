@@ -318,6 +318,13 @@ namespace Shop.Controllers
                 return BadRequest(new { success = false, message = "exception " + ex.Message });
             }
         }
+        [HttpGet]
+        public IActionResult GetUserInfo()
+        {           
+
+            return Json(new { success = true, message = userInfoHelper.User });
+        }
+
     }
     public class BuyInfo
     {
